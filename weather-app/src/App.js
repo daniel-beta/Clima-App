@@ -1,10 +1,11 @@
 import React from 'react';
-
+import Header from './components/Header';
 import './App.css';
 
 import 'weather-icons/css/weather-icons.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Weather from './app-component/weather.component';
+import Weather from './components/Weather.component';
+import Footer from './components/Footer';
+import Ciudad from './components/Ciudad.component';
 
 // api call api.openweathermap.org/data/2.5/weather?q=London&appid={API key}
 const API_key = "e8ff68f250834a783798ee124432d5c8";
@@ -22,7 +23,6 @@ class App extends React.Component {
       description: "",
       error: false
     };
-    this.getWeather();
 
     this.weatherIcon = {
       Thunderstorm: "wi-thunderstorm",
@@ -68,8 +68,14 @@ class App extends React.Component {
     }
   }
 
-  getWeather = async () => {
-    const api_call = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=Medellin&appid=${API_key}`);
+  getWeather = async (e) => {
+
+    e.preventDefault();
+
+    const city = e.target.elements.city.value;
+    console.log(city);
+
+    const api_call = await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_key}`);
 
     const response = await api_call.json();
 
@@ -87,10 +93,28 @@ class App extends React.Component {
     this.get_weatherIcon(this.weatherIcon, response.weather[0].id);
   };
 
-  state = {}
   render(){
+    //Obtener Fecha
+    const fecha = new Date().getFullYear();
+
     return(
       <div className="App">
+      <Header
+      titulo='Clima App'
+      />
+      <Ciudad loadweather={this.getWeather}/>
+      <div className="selector-ciudad">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              1
+            </div>
+            <div className="col-lg-6 col-md-6 col-xs-12">
+              2
+            </div>
+          </div>
+        </div>
+      </div>
       <Weather 
       city={this.state.city}
       temp_celsius={this.state.celsius}
@@ -98,6 +122,9 @@ class App extends React.Component {
       temp_min={this.state.temp_min}
       description={this.state.description}
       weatherIcon={this.state.icon}
+      />
+      <Footer
+      fecha={fecha}
       />
       </div>
     );
