@@ -8,10 +8,10 @@ const Ciudad = props => {
                     <div className="col-md-2 align-self-center">
                         <label htmlFor="ciudad">Ciudad:</label>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-4 align-self-center">
                     <select
                         name="city"
-                        id="ciudad"
+                        id="city"
                         className="form-control"
                     >
                         <option value="medellin">Medellín</option>
@@ -23,7 +23,7 @@ const Ciudad = props => {
                     </select>
                     </div>
                     <div className="col-md-3">
-                        <button className="btn btn-info px-5">Go!</button>
+                        <button className="btn btn-info px-5 py-2 my-2">Go!</button>
                     </div>
                 </div>
             </form>

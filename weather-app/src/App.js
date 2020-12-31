@@ -4,7 +4,6 @@ import './App.css';
 
 import 'weather-icons/css/weather-icons.css';
 import Weather from './components/Weather.component';
-import Footer from './components/Footer';
 import Ciudad from './components/Ciudad.component';
 
 // api call api.openweathermap.org/data/2.5/weather?q=London&appid={API key}
@@ -21,6 +20,13 @@ class App extends React.Component {
       temp_max: null,
       temp_min: null,
       description: "",
+      humidity: undefined,
+      pressure: undefined,
+      wind: undefined,
+      sunrise: undefined,
+      sunset: undefined,
+      lat: undefined,
+      lon: undefined,
       error: false
     };
 
@@ -38,6 +44,16 @@ class App extends React.Component {
   calCelsius(temp){
     let cell = Math.floor(temp - 273.15);
     return cell
+  }
+
+  CalUnixTimestampTime(time){
+    let timestampValue = new Date(time*1000).toLocaleTimeString('es-CO');
+    return timestampValue
+  }
+
+  CalUnixTimestampDate(time){
+    let timestampValue = new Date(time*1000).toLocaleDateString('es-CO');
+    return timestampValue
   }
 
   get_weatherIcon(icons,rangeId){
@@ -81,12 +97,62 @@ class App extends React.Component {
 
     console.log(response);
 
+    const lon = response.coord.lon;
+    const lat = response.coord.lat;
+
+    console.log(lon, lat);
+
+    const api_call2 = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude={part}&appid=${API_key}`);
+
+    const response2 = await api_call2.json();
+
+    console.log(response2);
+
+    const diasSiguientes = [
+      this.CalUnixTimestampDate(response2.daily[0].dt),
+      this.CalUnixTimestampDate(response2.daily[1].dt),
+      this.CalUnixTimestampDate(response2.daily[2].dt),
+      this.CalUnixTimestampDate(response2.daily[3].dt),
+      this.CalUnixTimestampDate(response2.daily[4].dt),
+      this.CalUnixTimestampDate(response2.daily[5].dt)
+    ];
+
+    const tempMinDiasSiguientes = [
+      this.calCelsius(response2.daily[0].temp.min),
+      this.calCelsius(response2.daily[1].temp.min),
+      this.calCelsius(response2.daily[2].temp.min),
+      this.calCelsius(response2.daily[3].temp.min),
+      this.calCelsius(response2.daily[4].temp.min),
+      this.calCelsius(response2.daily[5].temp.min)
+    ];
+
+    const tempMaxDiasSiguientes = [
+      this.calCelsius(response2.daily[0].temp.max),
+      this.calCelsius(response2.daily[1].temp.max),
+      this.calCelsius(response2.daily[2].temp.max),
+      this.calCelsius(response2.daily[3].temp.max),
+      this.calCelsius(response2.daily[4].temp.max),
+      this.calCelsius(response2.daily[5].temp.max)
+    ];
+
+    console.log(diasSiguientes, tempMinDiasSiguientes, tempMaxDiasSiguientes);
+
     this.setState({
       city : response.name,
       celsius : this.calCelsius(response.main.temp),
       temp_max : this.calCelsius(response.main.temp_max),
       temp_min : this.calCelsius(response.main.temp_min),
       description : response.weather[0].description,
+      humidity: response.main.humidity,
+      pressure: response.main.pressure,
+      wind: response.wind.speed,
+      sunrise: this.CalUnixTimestampTime(response.sys.sunrise),
+      sunset: this.CalUnixTimestampTime(response.sys.sunset),
+      lon: response.coord.lon,
+      lat: response.coord.lat,
+      diasSiguientes: diasSiguientes,
+      tempMinDiasSiguientes: tempMinDiasSiguientes,
+      tempMaxDiasSiguientes: tempMaxDiasSiguientes,
       error: false
     });
 
@@ -103,18 +169,6 @@ class App extends React.Component {
       titulo='Clima App'
       />
       <Ciudad loadweather={this.getWeather}/>
-      <div className="selector-ciudad">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-6 col-md-6 col-xs-12">
-              1
-            </div>
-            <div className="col-lg-6 col-md-6 col-xs-12">
-              2
-            </div>
-          </div>
-        </div>
-      </div>
       <Weather 
       city={this.state.city}
       temp_celsius={this.state.celsius}
@@ -122,9 +176,14 @@ class App extends React.Component {
       temp_min={this.state.temp_min}
       description={this.state.description}
       weatherIcon={this.state.icon}
-      />
-      <Footer
-      fecha={fecha}
+      humidity={this.state.humidity}
+      pressure={this.state.pressure}
+      wind={this.state.wind}
+      sunrise={this.state.sunrise}
+      sunset={this.state.sunset}
+      diasSiguientes={this.state.diasSiguientes}
+      tempMinDiasSiguientes={this.state.tempMinDiasSiguientes}
+      tempMaxDiasSiguientes={this.state.tempMaxDiasSiguientes}
       />
       </div>
     );
